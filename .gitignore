@@ -1,0 +1,13 @@
+dataset/
+data/
+opencv_python-3.4.0.14-cp36-cp36m-manylinux1_x86_64.whl
+opencv_python-3.4.0.14-cp36-cp36m-win_amd64.whl
+tensorflow-1.3.0-cp36-cp36m-manylinux1_x86_64.whl
+tensorflow-1.3.0-cp36-cp36m-win_amd64.whl
+preprocess/__pycache__/ass_fun.cpython-36.pyc
+preprocess/__pycache__/ass_fun.cpython-38.pyc
+preprocess/__pycache__/vgg.cpython-36.pyc
+preprocess/__pycache__/vgg.cpython-38.pyc
+.idea/
+images.zip
+images2.zip
