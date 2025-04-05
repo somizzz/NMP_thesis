@@ -88,14 +88,14 @@ parser.add_argument('--node-types', type=int, default=101,
 # ===================== Args Definition =======================#
 args = parser.parse_args()
 # ---------- ground truth path --#
-graph_path = './data/vrd_pred_graph_roidb.npz'
+graph_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_pred_graph_roidb.npz'
 graph_roidb = read_roidb(graph_path)
 train_roidb = graph_roidb['train']
 val_roidb = graph_roidb['test']
 test_roidb = graph_roidb['test']
 
 
-rela_graph_path = './data/vrd_rela_graph_roidb_iou_dis_{}_{}.npz'.format(args.iou*10, args.dis*10)
+rela_graph_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_graph_roidb_iou_dis_{}_{}.npz'.format(args.iou*10, args.dis*10)
 rela_graph_roidb = read_roidb(rela_graph_path)
 rela_train_roidb = rela_graph_roidb['train']
 rela_val_roidb = rela_graph_roidb['test']
@@ -323,13 +323,13 @@ def iter_one_epoch(roidb, data_loader, batch_size, is_rela=False, is_training=Tr
 
     if is_rela:
         pred_roidb = graph_npy2roidb(roidb, pred_probs, pred_cls, mode='rela', topk=False)
-        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=False, mode='rela', topk=False)
-        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=False, mode='rela', topk=False)
+        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50,mode='rela', topk=False)
+        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100,mode='rela', topk=False)
         
     else:
         pred_roidb = graph_npy2roidb(roidb, pred_probs, pred_cls, mode='pred', topk=False)
-        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=False, mode='pred', topk=False)
-        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=False, mode='pred', topk=False)
+        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, mode='pred', topk=False)
+        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, mode='pred', topk=False)
         
     if not is_training:
         if is_rela:
@@ -519,15 +519,15 @@ def eval(roidb, test_loader, is_rela=False):
     if is_rela:
         pred_roidb = graph_npy2roidb(roidb, pred_probs, pred_cls, mode='rela', level='image', topk=False)
         rela_pred_roidb = graph_npy2roidb(roidb, rela_pred_probs, rela_pred_cls, mode='rela', level='image', topk=False)
-        recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, is_zs=False, mode='rela', topk=False)
-        recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, is_zs=False, mode='rela', topk=False)
-        zs_recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, is_zs=True, mode='rela', topk=False)
-        zs_recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, is_zs=True, mode='rela', topk=False)
+        recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, mode='rela', topk=False)
+        recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, mode='rela', topk=False)
+        #zs_recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, is_zs=True, mode='rela', topk=False)
+        #zs_recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, is_zs=True, mode='rela', topk=False)
         
         np.savez(os.path.join(load_folder, 'rela_roidb'), pred_roidb)
         np.savez(os.path.join(load_folder, 'rela_roidb_with_prior'), rela_pred_roidb)
         print('[rela_eval] recall_50: {:.4f} recall_100: {:.4f}'.format(recall_50, recall_100), file=log)
-        print('[zs_rela_eval] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
+        #print('[zs_rela_eval] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
 
         np.save(os.path.join(load_folder, 'rela_pred_probs'), pred_probs)
         np.save(os.path.join(load_folder, 'rela_pred_cls'), pred_cls)    
@@ -535,21 +535,21 @@ def eval(roidb, test_loader, is_rela=False):
 
     else:
         pred_roidb = graph_npy2roidb(roidb, pred_probs, pred_cls, mode='pred', level='image', topk=False)
-        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=False, mode='pred', topk=False)
-        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=False, mode='pred', topk=False)
-        zs_recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=True, mode='pred', topk=False)
-        zs_recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=True, mode='pred', topk=False)
+        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, mode='pred', topk=False)
+        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, mode='pred', topk=False)
+        #zs_recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=True, mode='pred', topk=False)
+        #zs_recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=True, mode='pred', topk=False)
         
         np.savez(os.path.join(load_folder, 'pred_roidb'), pred_roidb)
         print('[pred_eval] recall_50: {:.4f} recall_100: {:.4f}'.format(recall_50, recall_100), file=log)
-        print('[zs_pred_eval] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
+        #print('[zs_pred_eval] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
 
 
         np.save(os.path.join(load_folder, 'pred_probs'), pred_probs)
         np.save(os.path.join(load_folder, 'pred_cls'), pred_cls)
 
     print('recall_50: {:.4f} recall_100: {:.4f}'.format(recall_50, recall_100))
-    print('[zs] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100))
+    #print('[zs] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100))
     return
 
 def eval_topk(roidb, test_loader, is_rela=False, k=70):
@@ -564,14 +564,14 @@ def eval_topk(roidb, test_loader, is_rela=False, k=70):
         model.load_state_dict(torch.load(model_file))
 
     if is_rela:
-        num_nodes = args.rela_num_atoms
-        num_edges = num_nodes * (num_nodes - 1)
+        num_nodes = args.rela_num_atoms #96
+        num_edges = num_nodes * (num_nodes - 1) #96*95=9120
         batch_size = args.eval_batch_size
     else:
         num_nodes = args.num_atoms
         num_edges = args.num_edges
         batch_size = args.batch_size
-
+    
     pred_probs = np.zeros([len(test_loader.dataset), num_edges, k])
     pred_cls = np.zeros([len(test_loader.dataset), num_edges, k]) + args.edge_types-1
 
@@ -641,34 +641,34 @@ def eval_topk(roidb, test_loader, is_rela=False, k=70):
     if is_rela:
         pred_roidb = graph_npy2roidb(roidb, pred_probs, pred_cls, mode='rela', level='image', topk=True)
         rela_pred_roidb = graph_npy2roidb(roidb, rela_pred_probs, rela_pred_cls, mode='rela', level='image', topk=True)
-        recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, is_zs=False, mode='rela', topk=True)
-        recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, is_zs=False, mode='rela', topk=True)
-        zs_recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, is_zs=True, mode='rela', topk=True)
-        zs_recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, is_zs=True, mode='rela', topk=True)
+        recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, mode='rela', topk=True)
+        recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, mode='rela', topk=True)
+        #zs_recall_50 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 50, is_zs=True, mode='rela', topk=True)
+        #zs_recall_100 = eval_result(roidb, rela_pred_roidb['pred_roidb'], 100, is_zs=True, mode='rela', topk=True)
         
         # np.savez(os.path.join(load_folder, 'topk_rela_roidb'), pred_roidb)
         # np.savez(os.path.join(load_folder, 'topk_rela_roidb_with_prior'), rela_pred_roidb)
         print('[rela_eval_topk] recall_50: {:.4f} recall_100: {:.4f}'.format(recall_50, recall_100), file=log)
-        print('[zs_rela_eval_topk] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
+        #print('[zs_rela_eval_topk] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
         
         # np.save(os.path.join(load_folder, 'rela_pred_probs'), pred_probs)
         # np.save(os.path.join(load_folder, 'rela_pred_cls'), pred_cls)
     else:
         pred_roidb = graph_npy2roidb(roidb, pred_probs, pred_cls, mode='pred', level='image', topk=True)
-        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=False, mode='pred', topk=True)
-        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=False, mode='pred', topk=True)
-        zs_recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=True, mode='pred', topk=True)
-        zs_recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=True, mode='pred', topk=True)
+        recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, mode='pred', topk=True)
+        recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, mode='pred', topk=True)
+        #zs_recall_50 = eval_result(roidb, pred_roidb['pred_roidb'], 50, is_zs=True, mode='pred', topk=True)
+        #zs_recall_100 = eval_result(roidb, pred_roidb['pred_roidb'], 100, is_zs=True, mode='pred', topk=True)
         
         np.savez(os.path.join(load_folder, 'topk_pred_roidb'), pred_roidb)
         print('[pred_eval_topk] recall_50: {:.4f} recall_100: {:.4f}'.format(recall_50, recall_100), file=log)
-        print('[zs_pred_eval_topk] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
+        #print('[zs_pred_eval_topk] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100), file=log)
 
         np.save(os.path.join(load_folder, 'pred_probs'), pred_probs)
         np.save(os.path.join(load_folder, 'pred_cls'), pred_cls)
 
     print('recall_50: {:.4f} recall_100: {:.4f}'.format(recall_50, recall_100))
-    print('[zs] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100))
+    #print('[zs] recall_50: {:.4f} recall_100: {:.4f}'.format(zs_recall_50, zs_recall_100))
     return
 
 # Train model
@@ -685,12 +685,12 @@ if args.mode == 'whole' or args.mode == 'train':
         if val_acc > best_val_accuracy:
             best_val_accuracy = val_acc
             best_epoch = epoch
-            print('------------- pred --------------')
-            eval(test_roidb, test_loader, is_rela=False)
-            print('------------- pred topk--------------')
-            eval_topk(test_roidb, test_loader, is_rela=False)
-            # print('------------- rela --------------')
-            # eval(rela_test_roidb, rela_test_loader, is_rela=True)
+            #print('------------- pred --------------')
+            # eval(test_roidb, test_loader, is_rela=False)
+            # print('------------- pred topk--------------')
+            # eval_topk(test_roidb, test_loader, is_rela=False)
+            print('------------- rela --------------')
+            eval(rela_test_roidb, rela_test_loader, is_rela=True)
             # print('------------- rela topk--------------')
             # eval_topk(rela_test_roidb, rela_test_loader, is_rela=True)
         pbar.update(1)
@@ -702,27 +702,21 @@ if args.mode == 'whole' or args.mode == 'train':
         print("Best Epoch: {:04d}".format(best_epoch), file=log)
         log.flush()
     args.mode = 'eval'
-    print('------------- pred --------------')
-    eval(test_roidb, test_loader, is_rela=False)
-    print('------------- pred topk--------------')
-    eval_topk(test_roidb, test_loader, is_rela=False)
+    # print('------------- pred --------------')
+    # eval(test_roidb, test_loader, is_rela=False)
+    # print('------------- pred topk--------------')
+    # eval_topk(test_roidb, test_loader, is_rela=False)
     print('------------- rela --------------')
     eval(rela_test_roidb, rela_test_loader, is_rela=True)
-    print('------------- rela topk--------------')
-    eval_topk(rela_test_roidb, rela_test_loader, is_rela=True)
+    # print('------------- rela topk--------------')
+    # eval_topk(rela_test_roidb, rela_test_loader, is_rela=True)
     if log is not None:
         print(save_folder)
         log.close()
     print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
 elif args.mode == 'eval':
-    print('------------- pred --------------')
-    eval(test_roidb, test_loader, is_rela=False)
-    print('------------- pred topk--------------')
-    eval_topk(test_roidb, test_loader, is_rela=False)
     print('------------- rela --------------')
     eval(rela_test_roidb, rela_test_loader, is_rela=True)
-    print('------------- rela topk--------------')
-    eval_topk(rela_test_roidb, rela_test_loader, is_rela=True)
     if log is not None:
         print(load_folder)
         log.close()

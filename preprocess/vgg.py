@@ -167,11 +167,13 @@ class VTranse_Vgg(object):
 		return pooling
 
 	def extract_pred_fc(self, sess, roidb_use, is_rela=False):
-		im, im_scale = im_preprocess(os.path.join("/home/p_zhuzy/p_zhu/NMP/",*roidb_use['image'].split("/")[-6:]))
+		#print("roidb_use['image']: ", roidb_use['image'])
+		im, im_scale = im_preprocess(os.path.join("/home/p_zhuzy/p_zhu/NMP/",*roidb_use['image'].split("/")[-5:]))
 		if is_rela:
 			batch_num = len(roidb_use['index_rela'])/self.batch_size
 		else:
 			batch_num = len(roidb_use['index_pred'])/self.batch_size
+
 		
 		layers = []
 		keys = ['pred_pool5', 'pred_fc7', 'pool5', 'fc7', 'sub_fc7', 'ob_fc7']

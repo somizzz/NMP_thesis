@@ -11,3 +11,5 @@ preprocess/__pycache__/vgg.cpython-38.pyc
 .idea/
 images.zip
 images2.zip
+vg_faster_det.pth
+checkpoints/

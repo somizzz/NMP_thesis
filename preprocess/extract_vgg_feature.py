@@ -42,8 +42,8 @@ if dataset == 'vrd' and data_type == 'pred':
 		save_path = os.path.join(feat_save_path, 'random_vrd_vgg_feats')
 	else:
 		save_path = os.path.join(feat_save_path, 'vrd_vgg_feats')
-	roidb_path = '../data/vrd_roidb.npz'
-	res_path = '../data/pretrained/vrd_vgg_pretrained.ckpt'
+	roidb_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_roidb.npz'
+	res_path = '/home/p_zhuzy/p_zhu/NMP/data/pretrained/vrd_vgg_pretrained.ckpt'
 	N_each_batch = 30
 	is_rela = False
 elif dataset == 'vrd' and data_type == 'rela':
@@ -54,8 +54,8 @@ elif dataset == 'vrd' and data_type == 'rela':
 		save_path = os.path.join(feat_save_path, 'random_vrd_rela_vgg_feats')
 	else:
 		save_path = os.path.join(feat_save_path, 'vrd_rela_vgg_feats')
-	roidb_path = '../data/vrd_rela_roidb.npz'
-	res_path = '../data/pretrained/vrd_vgg_pretrained.ckpt'
+	roidb_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_roidb.npz'
+	res_path = '/home/p_zhuzy/p_zhu/NMP/data/pretrained/vrd_vgg_pretrained.ckpt'
 	N_each_batch = 50
 	is_rela = True
 elif dataset == 'vg' and data_type == 'pred':
@@ -64,8 +64,8 @@ elif dataset == 'vg' and data_type == 'pred':
 		save_path = os.path.join(feat_save_path, 'ori_vg_vgg_feats')
 	else:
 		save_path = os.path.join(feat_save_path, 'vg_vgg_feats')
-	roidb_path = '../data/vg_roidb.npz'
-	res_path = '../data/pretrained/vg_vgg_pretrained.ckpt'
+	roidb_path = '/home/p_zhuzy/p_zhu/NMP/data/vg_roidb.npz'
+	res_path = '/home/p_zhuzy/p_zhu/NMP/data/pretrained/vg_vgg_pretrained.ckpt'
 	N_each_batch = 30
 	is_rela = False
 elif dataset == 'vg' and data_type == 'rela':

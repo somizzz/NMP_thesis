@@ -193,7 +193,9 @@ def generate_au_box(unique_boxes, detected_box, iou_l):
 	return au_box
 
 def im_preprocess(image_path):
-	image = cv2.imread("../" + image_path)
+
+	image = cv2.imread(image_path)
+	
 	if image is None:
 		raise FileNotFoundError(f"无法读取图片，请检查路径是否正确: {image_path}")
 	im_orig = image.astype(np.float32, copy=True)

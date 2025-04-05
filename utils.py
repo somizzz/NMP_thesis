@@ -189,7 +189,7 @@ def gumbel_softmax(logits, tau=1, hard=False, eps=1e-10):
 
 def read_roidb(roidb_path):
 	''' python3 '''
-	roidb_file = np.load(roidb_path, encoding='latin1')
+	roidb_file = np.load(roidb_path, encoding='latin1',allow_pickle=True)
 	key = list(roidb_file.keys())[0]
 	roidb_temp = roidb_file[key]
 	roidb = roidb_temp[()]

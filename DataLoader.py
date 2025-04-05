@@ -24,11 +24,11 @@ class VrdPredDataset(Dataset):
         self.feat_mode = feat_mode
         self.prior = prior
         # ----------- senmantic feature ------------- #
-        self.predicates_vec = np.load('./data/vrd_predicates_vec.npy')
-        self.objects_vec = np.load('./data/vrd_objects_vec.npy')
+        self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec.npy')
+        self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec.npy')
 
         # ------------ original roidb feature --------#
-        self.roidb_read = read_roidb('./data/vrd_pred_graph_roidb.npz')
+        self.roidb_read = read_roidb('/home/p_zhuzy/p_zhu/NMP/data/vrd_pred_graph_roidb.npz')
         self.roidb = self.roidb_read[self.mode]
 
         # Exclude self edges
@@ -76,14 +76,37 @@ class VrdPredDataset(Dataset):
     def train_item(self, roidb_use):
         if self.feat_mode == 'full':
             # --------- node feature ------------#
-            feats = np.load(roidb_use['uni_fc7'])
-            w2vec = list(map(lambda x: self.objects_vec[int(x)], roidb_use['uni_gt']))
-            w2vec = np.reshape(np.array(w2vec),[-1, 300])
+            #feats = np.load(roidb_use['uni_fc7'])
+            old_path = roidb_use['uni_fc7']
+            #print(f"原始路径: {old_path}")  # 调试输出
+            
+            new_path = old_path.replace(
+                "/DATA5_DB8/data/yhu/VTransE/dsr_vrd_vgg_feats",
+                "/home/p_zhuzy/p_zhu/NMP/data/feat/vg_rela_vgg_feats/vrd_rela_vgg_feats"
+            )
+            #print(f"修正后路径: {new_path}")  # 调试输出
+            
+
+            feats = np.load(new_path)  # 形状 (16, 4096)
+            w2vec = np.array([self.objects_vec[int(x)] for x in roidb_use['uni_gt']])  # 形状 (7, 300)
+            # 统一维度
+            min_len = min(feats.shape[0], len(roidb_use['uni_gt']))
             nodes = np.zeros([self.num_nodes, 4396])
-            nodes[:feats.shape[0], :4096] = feats
-            nodes[:feats.shape[0], 4096:] = w2vec   # [self.num_nodes, 4096+300]
+            nodes[:min_len, :4096] = feats[:min_len]  # 只填充前min_len行
+            nodes[:min_len, 4096:] = w2vec[:min_len]  # 只填充前min_len行
+            # feats = np.load(new_path)
+            # w2vec = list(map(lambda x: self.objects_vec[int(x)], roidb_use['uni_gt']))
+            # w2vec = np.reshape(np.array(w2vec),[-1, 300])
+            # nodes = np.zeros([self.num_nodes, 4396])
+            # nodes[:feats.shape[0], :4096] = feats
+            # nodes[:feats.shape[0], 4096:] = w2vec   # [self.num_nodes, 4096+300]
         elif self.feat_mode == 'vis':
-            feats = np.load(roidb_use['uni_fc7'])
+            old_path = roidb_use['uni_fc7']
+            new_uni_path = old_path.replace(
+                "/DATA5_DB8/data/yhu/VTransE/dsr_vrd_vgg_feats",
+                "/home/p_zhuzy/p_zhu/NMP/data/feat/vg_rela_vgg_feats/vrd_rela_vgg_feats"
+            )
+            feats = np.load(new_uni_path)
             nodes = np.zeros([self.num_nodes, 4096])
             nodes[:feats.shape[0]] = feats
         elif self.feat_mode == 'sem':
@@ -105,8 +128,26 @@ class VrdPredDataset(Dataset):
         # sub_idx = box_id(roidb_use['sub_box_gt'], roidb_use['uni_box_gt'])
         # obj_idx = box_id(roidb_use['obj_box_gt'], roidb_use['uni_box_gt'])
         edge_feats = np.zeros([self.num_edges, 512])
-        pred_fc7 = np.load(roidb_use['pred_fc7'])
-        edge_feats[:len(roidb_use['rela_gt'])] = pred_fc7
+        old_pred_path = roidb_use['pred_fc7']
+        new_pred_path = old_pred_path.replace(
+            "/DATA5_DB8/data/yhu/VTransE/dsr_vrd_vgg_feats",
+            "/home/p_zhuzy/p_zhu/NMP/data/feat/vg_rela_vgg_feats/vrd_rela_vgg_feats"
+        )
+        pred_fc7 = np.load(new_pred_path)  # 替换后的路径
+        rela_gt_len = len(roidb_use['rela_gt'])
+
+        # 检查 pred_fc7 的行数是否足够
+        if pred_fc7.shape[0] < rela_gt_len:
+            # 如果 pred_fc7 的行数不足，填充零
+            padded_pred_fc7 = np.zeros((rela_gt_len, 512))
+            padded_pred_fc7[:pred_fc7.shape[0]] = pred_fc7
+            pred_fc7 = padded_pred_fc7
+        else:
+            # 如果 pred_fc7 的行数足够，截取前 rela_gt_len 行
+            pred_fc7 = pred_fc7[:rela_gt_len]
+
+        edge_feats[:rela_gt_len] = pred_fc7
+        #edge_feats[:len(roidb_use['rela_gt'])] = pred_fc7
         
         return nodes, edge_feats, prior_matrix
 
@@ -149,11 +190,11 @@ class VrdRelaDataset(Dataset):
             self.num_edges = self.num_nodes * (self.num_nodes-1)
 
         # ----------- senmantic feature ------------- #
-        self.predicates_vec = np.load('./data/vrd_predicates_vec.npy')
-        self.objects_vec = np.load('./data/vrd_objects_vec.npy')
+        self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec.npy')
+        self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec.npy')
 
         # ------------ original roidb feature --------#
-        self.roidb_read = read_roidb('./data/vrd_rela_graph_roidb_iou_dis_{}_{}.npz'.format(0.5*10, 0.45*10))
+        self.roidb_read = read_roidb('/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_graph_roidb_iou_dis_{}_{}.npz'.format(0.5*10, 0.45*10))
         
         self.roidb = self.roidb_read[self.mode]
 
@@ -164,7 +205,7 @@ class VrdRelaDataset(Dataset):
 
         # ------------ prior probability ------------- #
         self.prior = prior
-        f = open('./data/vrd_so_prior.pkl', 'rb')
+        f = open('/home/p_zhuzy/p_zhu/NMP/data/vrd_so_prior.pkl', 'rb')
         f.seek(0)
         self.rel_so_prior = pickle.load(f, encoding='bytes')    #[100, 100, 70]
 
@@ -196,7 +237,13 @@ class VrdRelaDataset(Dataset):
 
     def train_item(self, roidb_use):
         # --------- node feature ------------#
-        feats = np.load(roidb_use['uni_fc7'])
+        #feats = np.load(roidb_use['uni_fc7'])
+        old_uni_path = roidb_use['uni_fc7']
+        new_uni_path = old_uni_path.replace(
+            "/DATA5_DB8/data/yhu/VTransE/vrd_rela_vgg_feats",
+            "/home/p_zhuzy/p_zhu/NMP/data/feat/vg_rela_vgg_feats/vrd_rela_vgg_feats"
+        )
+        feats = np.load(new_uni_path)
         
         w2vec = list(map(lambda x: self.objects_vec[int(x)], roidb_use['uni_gt']))
         w2vec = np.reshape(np.array(w2vec),[-1, 300])

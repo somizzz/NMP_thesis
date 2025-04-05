@@ -107,7 +107,7 @@ def compute_overlap(det_bboxes, gt_bboxes):
         overlaps.append(compute_iou_each(det_bbox, gt_bbox))
     return min(overlaps)
 
-def roidb2list(test_roidb, pred_roidb, mode='pred', topk=False, is_zs=False, dataset='vrd'):
+def roidb2list(test_roidb, pred_roidb, mode='pred', topk=False, dataset='vrd'):
 	N_data = len(test_roidb)
 	if topk:
 		if dataset == 'vrd':
@@ -126,6 +126,7 @@ def roidb2list(test_roidb, pred_roidb, mode='pred', topk=False, is_zs=False, dat
 			n_dete = len(test_roidb[i]['rela_gt'])
 		else:
 			n_dete = len(test_roidb[i]['rela_dete'])
+		
 		conf_dete = np.ones([n_dete*k, 1])
 		dete_label = np.concatenate([conf_dete, \
 				np.reshape(pred_roidb[i]['pred_rela_score'],[n_dete*k,1]),
@@ -142,28 +143,28 @@ def roidb2list(test_roidb, pred_roidb, mode='pred', topk=False, is_zs=False, dat
 
 	gt_labels = []
 	gt_bboxes = []
-	if is_zs:
-		if dataset == 'vrd':
-			zs_flag = np.load('/DATA5_DB8/data/yhu/NRI/dsr_data/dsr_zs.npy', encoding='bytes')
-		else:
-			zs_flag = read_roidb('/DATA5_DB8/data/yhu/VTransE/input/zeroshot_vg.npz')
+	# if is_zs:
+	# 	if dataset == 'vrd':
+	# 		zs_flag = np.load('/DATA5_DB8/data/yhu/NRI/dsr_data/dsr_zs.npy', encoding='bytes')
+	# 	else:
+	# 		zs_flag = read_roidb('/DATA5_DB8/data/yhu/VTransE/input/zeroshot_vg.npz')
 	for i in range(N_data):
-		if is_zs:
-			if dataset == 'vrd':
-				zs_index = np.where(zs_flag[i]==1)[0]
-			else:
-				zs_index = np.where(zs_flag[i]['zero_shot']==1)[0]
-			rela_gt = test_roidb[i]['rela_gt'][zs_index]
-			sub_gt = test_roidb[i]['sub_gt'][zs_index]
-			obj_gt = test_roidb[i]['obj_gt'][zs_index]
-			sub_box_gt = test_roidb[i]['sub_box_gt'][zs_index]
-			obj_box_gt = test_roidb[i]['obj_box_gt'][zs_index]
-		else:
-			rela_gt = test_roidb[i]['rela_gt']
-			sub_gt = test_roidb[i]['sub_gt']
-			obj_gt = test_roidb[i]['obj_gt']
-			sub_box_gt = test_roidb[i]['sub_box_gt']
-			obj_box_gt = test_roidb[i]['obj_box_gt']
+		# if is_zs:
+		# 	if dataset == 'vrd':
+		# 		zs_index = np.where(zs_flag[i]==1)[0]
+		# 	else:
+		# 		zs_index = np.where(zs_flag[i]['zero_shot']==1)[0]
+		# 	rela_gt = test_roidb[i]['rela_gt'][zs_index]
+		# 	sub_gt = test_roidb[i]['sub_gt'][zs_index]
+		# 	obj_gt = test_roidb[i]['obj_gt'][zs_index]
+		# 	sub_box_gt = test_roidb[i]['sub_box_gt'][zs_index]
+		# 	obj_box_gt = test_roidb[i]['obj_box_gt'][zs_index]
+		# else:
+		rela_gt = test_roidb[i]['rela_gt']
+		sub_gt = test_roidb[i]['sub_gt']
+		obj_gt = test_roidb[i]['obj_gt']
+		sub_box_gt = test_roidb[i]['sub_box_gt']
+		obj_box_gt = test_roidb[i]['obj_box_gt']
 		n_gt = len(rela_gt)
 		gt_label = np.concatenate([
 				np.reshape(sub_gt, [n_gt,1]),
@@ -177,9 +178,9 @@ def roidb2list(test_roidb, pred_roidb, mode='pred', topk=False, is_zs=False, dat
 		gt_bboxes.append(gt_box)
 	return det_labels, det_bboxes, gt_labels, gt_bboxes
 
-def eval_result(test_roidb, pred_roidb, N_recall, is_zs=False, mode='pred', topk=False, dataset='vrd'):
+def eval_result(test_roidb, pred_roidb, N_recall, mode='pred', topk=False, dataset='vrd'):
 	det_labels, det_bboxes, gt_labels, gt_bboxes = \
-		roidb2list(test_roidb, pred_roidb, mode=mode, topk=topk, is_zs=is_zs, dataset=dataset)
+		roidb2list(test_roidb, pred_roidb, mode=mode, topk=topk, dataset=dataset)
 	relationships_found = 0
 	n_re = N_recall
 	all_relationships = sum(labels.shape[0] for labels in gt_labels)

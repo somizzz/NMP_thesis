@@ -1,12 +1,14 @@
 #!/bin/bash
-#SBATCH -A extraction_feature
+
+#SBATCH -A p_zhu
 #SBATCH --partition=cpu
 #SBATCH --job-name=extraction_feature
 #SBATCH --time=128:00:00
-#SBATCH --mem-per-cpu=300000
+#SBATCH --mem-per-cpu=20000
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=drgdk8@inf.elte.hu
-srun -p cpu -c 8 --mem-per-cpu=2000 --pty bash --mail-type=ALL --mail-user=drgdk8@inf.elte.hu
+#SBATCH --nodes=1
+
 
 source ~/venv/bin/activate
 

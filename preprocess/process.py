@@ -65,7 +65,7 @@ def new_id(uni_box_gt, ori_box_gt, ori_cls_gt):
 			if np.array_equal(ori_box_gt[i], uni_box_gt[j]):
 				new_idx[i] = j
 	return new_idx
-
+#/home/p_zhuzy/p_zhu/NMP/data/feat/vg_rela_vgg_feats/vrd_rela_vgg_feats/train/uni_fc7
 def pred_write_feat_into_roidb(save_path, train_roidb, test_roidb, dataset='vrd', edges_types = 70):
 	edge_total = []
 	node_total = []
@@ -133,7 +133,7 @@ def pred_write_feat_into_roidb(save_path, train_roidb, test_roidb, dataset='vrd'
 		edge_total.append(edges)
 		node_total.append(nodes)
 	pbar.close()
-	np.savez('../data/{}_pred_graph_roidb.npz'.format(dataset), new_roidb)
+	np.savez('/home/p_zhuzy/p_zhu/NMP/data/{}_pred_graph_roidb.npz'.format(dataset), new_roidb)
 	return
 
 def rela_write_feat_into_roidb(save_path, train_roidb, test_roidb, dataset='vrd', edges_types = 70):
@@ -198,7 +198,7 @@ def rela_write_feat_into_roidb(save_path, train_roidb, test_roidb, dataset='vrd'
 		# test | max: 20 | mean: 7.00838574423 | min: 2
 		edge_total.append(edges)
 		node_total.append(nodes)
-	np.savez('../data/{}_rela_graph_roidb.npz'.format(dataset), new_roidb)
+	np.savez('/home/p_zhuzy/p_zhu/NMP/data/{}_rela_graph_roidb.npz'.format(dataset), new_roidb)
 	pbar.close()
 	return roidb
 
@@ -347,7 +347,7 @@ def process_vrd_rela_instance_data(save_path):
 	return
 
 def get_path(dataset = 'vg', data_type = 'rela', use_ori_vgg=False):
-	base_path = '/DATA5_DB8/data/yhu/VTransE/'
+	base_path = '/home/p_zhuzy/p_zhu/NMP/data/feat/vg_rela_vgg_feats/'
 	if dataset == 'vrd' and data_type == 'pred':
 		# ---------- vrd pred dataset ---------------#
 		if use_ori_vgg:
@@ -356,7 +356,7 @@ def get_path(dataset = 'vg', data_type = 'rela', use_ori_vgg=False):
 			save_path = base_path + 'random_vrd_vgg_feats'
 		else:
 			save_path = base_path + 'vrd_vgg_feats'
-		roidb_path = '../data/vrd_roidb.npz'
+		roidb_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_roidb.npz'
 	elif dataset == 'vrd' and data_type == 'rela':
 		if use_ori_vgg:
 			save_path = base_path + 'ori_vrd_rela_vgg_feats'
@@ -364,7 +364,7 @@ def get_path(dataset = 'vg', data_type = 'rela', use_ori_vgg=False):
 			save_path = base_path + 'random_vrd_rela_vgg_feats'
 		else:
 			save_path = base_path + 'vrd_rela_vgg_feats'
-		roidb_path = '../data/vrd_rela_roidb.npz'
+		roidb_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_roidb.npz'
 	elif dataset == 'vg' and data_type == 'pred':
 		# ----------- vg dataset ---------------#
 		save_path = base_path + 'vg_vgg_feats'
