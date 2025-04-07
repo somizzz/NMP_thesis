@@ -1,14 +1,13 @@
 #!/bin/bash
+#SBATCH -A p_zhu
+#SBATCH --partition=cpu
+#SBATCH --job-name=testam_training
+#SBATCH --time=4:00:00
+#SBATCH --mem-per-cpu=20000
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=drgdk8@inf.elte.hu
+#SBATCH --nodes=1
 
-#!/bin/bash
-#SBATCH -A p_zhu                # 指定项目名称
-#SBATCH --partition=gpu              # 选择有效的分区
-#SBATCH --gres=gpu:1                 # 请求 1 个 GPU
-#SBATCH --job-name=testam_training   # 作业名称
-#SBATCH --time=3:00:00              # 设置运行时间（根据需求修改）
-#SBATCH --mem=20000                  # 设置内存大小，具体值可以根据你的需求修改
-#SBATCH --mail-type=ALL              # 邮件通知类型
-#SBATCH --mail-user=drgck8@inf.elte.hu  # 邮件地址
  
 
 
