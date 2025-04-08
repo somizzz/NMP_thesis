@@ -71,7 +71,7 @@ class SimpleEncoder(nn.Module):
 
         self.fc_vis = FC(4096, self.vis_hid)
         self.fc_spatial = FC(512, self.spatial_hid)
-        self.fc_sem = FC(300, self.sem_hid)
+        self.fc_sem = FC(768, self.sem_hid)
         self.fc_loc = FC(20, self.loc_hid)
 
         n_fusion = 0
@@ -100,7 +100,7 @@ class SimpleEncoder(nn.Module):
         if self.use_vis:
             self.fc_cls = FC(4096, node_types, relu=False)
         else:
-            self.fc_cls = FC(300, node_types, relu=False)
+            self.fc_cls = FC(768, node_types, relu=False)
         self.fc_so_cls = FC(node_types*2, self.cls_hid)
 
         self.init_weights()
@@ -196,7 +196,7 @@ class NMPEncoder(nn.Module):
         self.fc_spatial = MLP(512, self.spatial_hid, self.spatial_hid, do_prob)
         # ------- semantic feature -------#
         # self.fc_sem = FC(300, n_hid)
-        self.fc_sem = MLP(300, self.sem_hid, self.sem_hid, do_prob)
+        self.fc_sem = MLP(768, self.sem_hid, self.sem_hid, do_prob)
         # ------- location feature -------#
         self.fc_loc = MLP(20, self.loc_hid, self.loc_hid, do_prob)
 
@@ -226,7 +226,7 @@ class NMPEncoder(nn.Module):
         if self.use_vis:
             self.fc_cls = FC(4096, node_types, relu=False)
         else:
-            self.fc_cls = FC(300, node_types, relu=False)
+            self.fc_cls = FC(768, node_types, relu=False)
         self.fc_cls_feat = FC(node_types, self.cls_hid)
 
         self.dropout_prob = do_prob

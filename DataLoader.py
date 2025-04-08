@@ -24,9 +24,10 @@ class VrdPredDataset(Dataset):
         self.feat_mode = feat_mode
         self.prior = prior
         # ----------- senmantic feature ------------- #
-        self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec.npy')
-        self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec.npy')
-
+        #self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec.npy')
+        #self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec.npy')
+        self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec_bert.npy')
+        self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec_bert.npy')
         # ------------ original roidb feature --------#
         self.roidb_read = read_roidb('/home/p_zhuzy/p_zhu/NMP/data/vrd_pred_graph_roidb.npz')
         self.roidb = self.roidb_read[self.mode]
@@ -91,7 +92,7 @@ class VrdPredDataset(Dataset):
             w2vec = np.array([self.objects_vec[int(x)] for x in roidb_use['uni_gt']])  # 形状 (7, 300)
             # 统一维度
             min_len = min(feats.shape[0], len(roidb_use['uni_gt']))
-            nodes = np.zeros([self.num_nodes, 4396])
+            nodes = np.zeros([self.num_nodes, 4096+768])
             nodes[:min_len, :4096] = feats[:min_len]  # 只填充前min_len行
             nodes[:min_len, 4096:] = w2vec[:min_len]  # 只填充前min_len行
             # feats = np.load(new_path)
@@ -111,7 +112,7 @@ class VrdPredDataset(Dataset):
             nodes[:feats.shape[0]] = feats
         elif self.feat_mode == 'sem':
             w2vec = list(map(lambda x: self.objects_vec[int(x)], roidb_use['uni_gt']))
-            w2vec = np.reshape(np.array(w2vec),[-1, 300])
+            w2vec = np.reshape(np.array(w2vec),[-1, 768])
             nodes = np.zeros([self.num_nodes, 300])
             nodes[:w2vec.shape[0]] = w2vec
 
@@ -190,8 +191,11 @@ class VrdRelaDataset(Dataset):
             self.num_edges = self.num_nodes * (self.num_nodes-1)
 
         # ----------- senmantic feature ------------- #
-        self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec.npy')
-        self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec.npy')
+        # self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec.npy')
+        # self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec.npy')
+
+        self.predicates_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_predicates_vec_bert.npy')
+        self.objects_vec = np.load('/home/p_zhuzy/p_zhu/NMP/data/vrd_objects_vec_bert.npy')
 
         # ------------ original roidb feature --------#
         self.roidb_read = read_roidb('/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_graph_roidb_iou_dis_{}_{}.npz'.format(0.5*10, 0.45*10))
@@ -246,7 +250,7 @@ class VrdRelaDataset(Dataset):
         feats = np.load(new_uni_path)
         
         w2vec = list(map(lambda x: self.objects_vec[int(x)], roidb_use['uni_gt']))
-        w2vec = np.reshape(np.array(w2vec),[-1, 300])
+        w2vec = np.reshape(np.array(w2vec),[-1, 768])
 
         if feats.shape[0] > self.num_nodes:
             index_box = np.sort(random.sample(range(feats.shape[0]), self.num_nodes))
@@ -264,7 +268,7 @@ class VrdRelaDataset(Dataset):
             # edge_idx = edge_idx[:, index_box]             # [self.num_nodes, self.num_nodes]
         else:
             if self.feat_mode == 'full':
-                nodes = np.zeros([self.num_nodes, 4396])
+                nodes = np.zeros([self.num_nodes, 4096 + 768])
                 nodes[:feats.shape[0], :4096] = feats
                 nodes[:feats.shape[0], 4096:] = w2vec   # [self.num_nodes, 4096+300]
             elif self.feat_mode == 'vis':
