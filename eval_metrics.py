@@ -178,30 +178,67 @@ def roidb2list(test_roidb, pred_roidb, mode='pred', topk=False, dataset='vrd'):
 		gt_bboxes.append(gt_box)
 	return det_labels, det_bboxes, gt_labels, gt_bboxes
 
-def eval_result(test_roidb, pred_roidb, N_recall, mode='pred', topk=False, dataset='vrd'):
-	det_labels, det_bboxes, gt_labels, gt_bboxes = \
-		roidb2list(test_roidb, pred_roidb, mode=mode, topk=topk, dataset=dataset)
-	relationships_found = 0
-	n_re = N_recall
-	all_relationships = sum(labels.shape[0] for labels in gt_labels)
-	for item in zip(det_labels, det_bboxes, gt_labels, gt_bboxes):
-		(det_lbls, det_bxs, gt_lbls, gt_bxs) = item
-		if not det_lbls.any() or not gt_lbls.any():
-			continue  # omit empty detection matrices
-		gt_detected = np.zeros(gt_lbls.shape[0])
-		# det_score = np.sum(np.log(det_lbls[:, 0:3]), axis=1)
-		det_score = det_lbls[:,1]
-		inds = np.argsort(det_score)[::-1][:n_re]  # at most n_re predictions
-		for det_box, det_label in zip(det_bxs[inds, :], det_lbls[inds, 3:]):
-			overlaps = np.array([
-				max(compute_overlap(det_box, gt_box), 0.499)
-				if detected == 0 and not any(det_label - gt_label)
-				else 0
-				for gt_box, gt_label, detected
-				in zip(gt_bxs, gt_lbls, gt_detected)
-			])
-			if (overlaps >= 0.5).any():
-				gt_detected[np.argmax(overlaps)] = 1
-				relationships_found += 1
-	return float(relationships_found / all_relationships)
+# def eval_result(test_roidb, pred_roidb, N_recall, mode='pred', topk=False, dataset='vrd'):
+# 	det_labels, det_bboxes, gt_labels, gt_bboxes = \
+# 		roidb2list(test_roidb, pred_roidb, mode=mode, topk=topk, dataset=dataset)
+# 	relationships_found = 0
+# 	n_re = N_recall
+# 	all_relationships = sum(labels.shape[0] for labels in gt_labels)
+# 	for item in zip(det_labels, det_bboxes, gt_labels, gt_bboxes):
+# 		(det_lbls, det_bxs, gt_lbls, gt_bxs) = item
+# 		if not det_lbls.any() or not gt_lbls.any():
+# 			continue  # omit empty detection matrices
+# 		gt_detected = np.zeros(gt_lbls.shape[0])
+# 		# det_score = np.sum(np.log(det_lbls[:, 0:3]), axis=1)
+# 		det_score = det_lbls[:,1]
+# 		inds = np.argsort(det_score)[::-1][:n_re]  # at most n_re predictions
+# 		for det_box, det_label in zip(det_bxs[inds, :], det_lbls[inds, 3:]):
+# 			overlaps = np.array([
+# 				max(compute_overlap(det_box, gt_box), 0.499)
+# 				if detected == 0 and not any(det_label - gt_label)
+# 				else 0
+# 				for gt_box, gt_label, detected
+# 				in zip(gt_bxs, gt_lbls, gt_detected)
+# 			])
+# 			if (overlaps >= 0.5).any():
+# 				gt_detected[np.argmax(overlaps)] = 1
+# 				relationships_found += 1
+# 	return float(relationships_found / all_relationships)
 
+def eval_result(test_roidb, pred_roidb, N_recall, mode='pred', topk=False, dataset='vrd', dist_thresh=0.5, iou_thresh=0.5):
+    det_labels, det_bboxes, gt_labels, gt_bboxes = \
+        roidb2list(test_roidb, pred_roidb, mode=mode, topk=topk, dataset=dataset)
+    
+    relationships_found = 0
+    n_re = N_recall
+    all_relationships = sum(labels.shape[0] for labels in gt_labels)
+    
+    for item in zip(det_labels, det_bboxes, gt_labels, gt_bboxes):
+        (det_lbls, det_bxs, gt_lbls, gt_bxs) = item
+        
+        if not det_lbls.any() or not gt_lbls.any():
+            continue  # omit empty detection matrices
+        
+        gt_detected = np.zeros(gt_lbls.shape[0])
+        
+        # Use the score of detections, assuming det_lbls[:,1] is the confidence score
+        det_score = det_lbls[:, 1]
+        inds = np.argsort(det_score)[::-1][:n_re]  # Get the top n_re predictions
+        
+        for det_box, det_label in zip(det_bxs[inds, :], det_lbls[inds, 3:]):
+            overlaps = np.array([
+                # Compute overlap for each gt box with the detection box
+                max(compute_overlap(det_box, gt_box), 0.499)
+                if detected == 0 and not any(det_label - gt_label)
+                else 0
+                for gt_box, gt_label, detected
+                in zip(gt_bxs, gt_lbls, gt_detected)
+            ])
+            
+            # Apply dynamic IoU threshold and distance threshold
+            valid_overlap = overlaps >= iou_thresh  # IoU threshold filtering
+            if valid_overlap.any():
+                gt_detected[np.argmax(valid_overlap)] = 1
+                relationships_found += 1
+
+    return float(relationships_found / all_relationships)

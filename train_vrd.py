@@ -95,7 +95,8 @@ val_roidb = graph_roidb['test']
 test_roidb = graph_roidb['test']
 
 
-rela_graph_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_graph_roidb_iou_dis_{}_{}.npz'.format(args.iou*10, args.dis*10)
+#rela_graph_path = '/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_graph_roidb_iou_dis_5_0779337882995605_0_25389668345451355.npz'
+rela_graph_path='/home/p_zhuzy/p_zhu/NMP/data/vrd_rela_graph_roidb_iou_dis_5.0_4.5.npz'
 rela_graph_roidb = read_roidb(rela_graph_path)
 rela_train_roidb = rela_graph_roidb['train']
 rela_val_roidb = rela_graph_roidb['test']

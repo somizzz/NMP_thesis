@@ -180,11 +180,11 @@ class NMPEncoder(nn.Module):
         self.loc_hid = 64
         self.cls_hid = 64
 
-        self.mlp1 = MLP(n_hid * 2, n_hid, n_hid, do_prob)
-        self.mlp2 = MLP(n_hid, n_hid, n_hid, do_prob)
-        self.mlp3 = MLP(n_hid * 3, n_hid, n_hid, do_prob)
-        self.mlp4 = MLP(n_hid * 2, n_hid, n_hid, do_prob)
-        self.mlp5 = MLP(n_hid * 2, n_hid, n_hid, do_prob)
+        self.mlp1 = ResidualMLP(n_hid * 2, n_hid, n_hid, do_prob)
+        self.mlp2 = ResidualMLP(n_hid, n_hid, n_hid, do_prob)
+        self.mlp3 = ResidualMLP(n_hid * 3, n_hid, n_hid, do_prob)
+        self.mlp4 = ResidualMLP(n_hid * 2, n_hid, n_hid, do_prob)
+        self.mlp5 = ResidualMLP(n_hid * 2, n_hid, n_hid, do_prob)
 
         self.mlp_e2n = MLP(n_hid * 2, n_hid, n_hid, do_prob)
 
@@ -199,6 +199,13 @@ class NMPEncoder(nn.Module):
         self.fc_sem = MLP(768, self.sem_hid, self.sem_hid, do_prob)
         # ------- location feature -------#
         self.fc_loc = MLP(20, self.loc_hid, self.loc_hid, do_prob)
+        
+        self.edge_weight = nn.Sequential(
+            nn.Linear(n_hid * 2, n_hid),  # 输入是[receivers; senders]
+            nn.ReLU(),
+            nn.Linear(n_hid, 1),
+            nn.Sigmoid()  # 输出0~1的权重
+        )
 
         n_fusion = 0
         if self.use_vis:
@@ -231,6 +238,13 @@ class NMPEncoder(nn.Module):
 
         self.dropout_prob = do_prob
         self.init_weights()
+        # # Add multi-head attention layer for feature fusion
+        # self.modal_attn = nn.MultiheadAttention(embed_dim=n_hid, num_heads=4, dropout=do_prob)
+        # # Add feature projection layers
+        # self.proj_vis = FC(4096, n_hid)  
+        # self.proj_sem = FC(768, n_hid)  
+        # self.proj_cls = FC(node_types, n_hid)  
+
 
     def init_weights(self):
         for m in self.modules():
@@ -238,11 +252,18 @@ class NMPEncoder(nn.Module):
                 nn.init.xavier_normal_(m.weight.data)
                 m.bias.data.fill_(0.1)
 
+    # def node2edge(self, x, rel_rec, rel_send):
+    #     receivers = torch.matmul(rel_rec, x)
+    #     senders = torch.matmul(rel_send, x)
+    #     edges = torch.cat([receivers, senders], dim=2)
+    #     return edges
+    
     def node2edge(self, x, rel_rec, rel_send):
         receivers = torch.matmul(rel_rec, x)
         senders = torch.matmul(rel_send, x)
         edges = torch.cat([receivers, senders], dim=2)
-        return edges
+        weights = self.edge_weight(edges)  # 计算权重
+        return edges * weights  
 
     def edge2node(self, x, rel_rec, rel_send):
         new_rec_rec = rel_rec.permute(0,2,1)
@@ -320,3 +341,12 @@ class NMPEncoder(nn.Module):
         output = self.fc_rel(self.edge_feats)
 
         return output, x_cls
+    
+class ResidualMLP(nn.Module):
+    def __init__(self, in_dim, hid_dim, out_dim, do_prob):
+        super().__init__()
+        self.mlp = MLP(in_dim, hid_dim, out_dim, do_prob)  # 复用原有MLP
+        self.skip = nn.Linear(in_dim, out_dim) if in_dim != out_dim else nn.Identity()
+        
+    def forward(self, x):
+        return self.mlp(x) + self.skip(x)  # 残差连接
